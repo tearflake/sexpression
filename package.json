@@ -1,0 +1,26 @@
+{
+  "name": "@tearflake/sexpression",
+  "version": "0.1.0",
+  "description": "modernized s-expression parser",
+  "main": "src/sexpression.js",
+  "directories": {
+    "playground": "playground",
+    "src": "src"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tearflake/sexpression.git"
+  },
+  "keywords": [
+    "s-expression"
+  ],
+  "author": "tearflake",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tearflake/sexpression/issues"
+  },
+  "homepage": "https://tearflake.github.io"
+}
