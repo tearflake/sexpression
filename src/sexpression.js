@@ -27,7 +27,7 @@ var Sexpression = (
             ret = parseList (text, 0, normalize, path, p);
             if (ret.err === "Expected parenthesis error: '('") {
                 ret = parseAtom (text, 0);
-                if (!ret.val && !ret.err) {
+                if (ret.val === undefined && !ret.err) {
                     ret = {pos: ret.pos, err: "Expected content error"};
                 }
             }
@@ -124,7 +124,7 @@ var Sexpression = (
             var terminated = false;
             do {
                 var start = i + 1;
-                while (" \t\r".indexOf (text.charAt(start)) > -1 && start - i < start2 - start1) {
+                while (" \t\r".indexOf (text.charAt(start)) > -1 && start - i <= start2 - start1) {
                     start++;
                 }
                 
@@ -133,10 +133,9 @@ var Sexpression = (
                 }
                 
                 i = start;
-                do {
+                while ('\n'.indexOf (text.charAt (i)) === -1 && i < text.length) {
                     i++;
                 }
-                while ('\n'.indexOf (text.charAt (i)) === -1 && i < text.length);
                 
                 if ((text.substr (start, scnt) === '"'.repeat (scnt)) && text.charAt(start + scnt) !== '"') {
                     terminated = true;
@@ -145,7 +144,7 @@ var Sexpression = (
 
                 allStr += text.substring (start, i) + "\n";
             }
-            while (i - 1 > start);
+            while (text.charAt (i) === '\n');
             
             if (terminated) {
                 return {pos: start + scnt, val: allStr.replaceAll ("\\", "&bsol;")};
@@ -175,7 +174,7 @@ var Sexpression = (
 
             if (text.charAt (i) === '"') {
                 var scnt = 1;
-                while ('"'.indexOf (text.charAt (i + scnt)) !== -1) {
+                while (text.charAt (i + scnt) === '"') {
                     scnt++;
                 }
                 

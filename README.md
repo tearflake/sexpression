@@ -1,4 +1,4 @@
-# sexpression v0.1.0
+# sexpression v0.1.1
 
 ## about s-expressions
 
@@ -19,7 +19,7 @@ One of the most distinctive features of S-expressions is their uniform represent
 
 ## project specifics
 
-This package holds a modernized version of s-expression parser for Javascript. Beside usual s-expression support, it borrows C style comments, unicode strings and a kind of Python style multiline strings. Appearance of s-expressions handled by this package looks like the following:
+This package contains a modernized version of s-expression parser for Javascript. Beside ordinary s-expression support, it borrows C style comments, Unicode strings and Python style multi-line strings. S-expressions handled by this package appear like the following:
 
 ```
 /*
@@ -28,22 +28,23 @@ This package holds a modernized version of s-expression parser for Javascript. B
 
 (
     (
-        these are atoms
+        these are some atoms
         (and some nested atoms) // this is a single-line comment
     )
     
     /*
         this is a
-        multiline comment
+        multi-line comment
     */
     
-    "unicode string"
+    "unicode string support \u2713"
     
     (some more atoms)
     
     """
-    whitespace sensitive
-    multiline string
+    indent sensitive
+    multi-line string
+    support
     """
 )
 ```
@@ -52,9 +53,9 @@ This package holds a modernized version of s-expression parser for Javascript. B
 
 Explore the [online playground](https://tearflake.github.io/sexpression/playground/).
 
-## javascript package access
+## node.js package access
 
-To access the package from Node.js, install this package: `npm i @tearflake/sexpression`, and include the following line in your code:
+To access this package from Node.js, install it: `npm i @tearflake/sexpression`, and include the following line in your code:
 
 ```
 const Sexpression = require('@tearflake/sexpression');
@@ -63,6 +64,6 @@ const Sexpression = require('@tearflake/sexpression');
 Below, use the package as:
 
 ```
-var output = Sexpression.parse ("(a b c)");
-console.log (JSON.stringify (output, undefined, 4));
+var output = Sexpression.parse("(a b c)");
+console.log(JSON.stringify (output, null, 4));
 ```

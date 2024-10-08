@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<title>Symbolverse playground</title>
+<title>Sexpression playground</title>
 
 <link rel="icon" type="image/png" href="">
 <script src="edit.js"></script>
@@ -303,22 +303,23 @@
 
 (
     (
-        these are atoms
+        these are some atoms
         (and some nested atoms) // this is a single-line comment
     )
     
     /*
         this is a
-        multiline comment
+        multi-line comment
     */
     
-    "unicode string"
+    "unicode string support \\u2713"
     
     (some more atoms)
     
     """
-    whitespace sensitive
-    multiline string
+    indent sensitive
+    multi-line string
+    support
     """
 )
 `
