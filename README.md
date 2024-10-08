@@ -65,5 +65,5 @@ Below, use the package as:
 
 ```
 var output = Sexpression.parse("(a b c)");
-console.log(JSON.stringify (output, null, 4));
+console.log(JSON.stringify(output, null, 4));
 ```
