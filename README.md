@@ -48,9 +48,9 @@ This package holds a modernized version of s-expression parser for Javascript. B
 )
 ```
 
-Utility resources:
+## resources
 
-- Explore the [online playground](https://tearflake.github.io/sexpression/playground/).
+Explore the [online playground](https://tearflake.github.io/sexpression/playground/).
 
 ## javascript package access
 
