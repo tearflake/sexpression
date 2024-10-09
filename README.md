@@ -1,4 +1,4 @@
-# sexpression v0.1.1
+# sexpression v0.1.2
 
 ## about s-expressions
 
@@ -19,7 +19,7 @@ One of the most distinctive features of S-expressions is their uniform represent
 
 ## project specifics
 
-This package contains a modernized version of s-expression parser for Javascript. Beside ordinary s-expression support, it borrows C style comments, Unicode strings and Python style multi-line strings. S-expressions handled by this package appear like the following:
+This package contains a modernized version of s-expression parser for Javascript. Beside ordinary s-expression support, it borrows C style comments, Unicode strings, and Python style multi-line strings. S-expressions handled by this package may appear like the following:
 
 ```
 /*
@@ -27,9 +27,11 @@ This package contains a modernized version of s-expression parser for Javascript
 */
 
 (
+    single-atom
+    
     (
-        these are some atoms
-        (and some nested atoms) // this is a single-line comment
+        these are nested atoms
+        (and more nested atoms) // this is a single-line comment
     )
     
     /*
@@ -39,7 +41,7 @@ This package contains a modernized version of s-expression parser for Javascript
     
     "unicode string support \u2713"
     
-    (some more atoms)
+    (more atoms)
     
     """
     indent sensitive
@@ -53,12 +55,20 @@ This package contains a modernized version of s-expression parser for Javascript
 
 Explore the [online playground](https://tearflake.github.io/sexpression/playground/).
 
-## node.js package access
+## javascript API access
 
-To access this package from Node.js, install it: `npm i @tearflake/sexpression`, and include the following line in your code:
+*Sexpression* may expose its functionality through javascript API, both in Node.js and browser.
+
+To access the API from Node.js, install it by: `npm i @tearflake/sexpression`, and include the following line in your code:
 
 ```
 const Sexpression = require('@tearflake/sexpression');
+```
+
+To access the API from browser, clone this repository from GitHub: `git clone https://github.com/tearflake/sexpression`, and include the following line in your code:
+
+```
+<script src="./src/sexpression.js"></script>
 ```
 
 Below, use the package as:
