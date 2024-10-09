@@ -23,7 +23,8 @@ This package contains a modernized version of s-expression parser for Javascript
 
 ```
 /*
-    Sexpression example
+    this is a
+    multi-line comment
 */
 
 (
@@ -33,11 +34,6 @@ This package contains a modernized version of s-expression parser for Javascript
         these are nested atoms
         (and more nested atoms) // this is a single-line comment
     )
-    
-    /*
-        this is a
-        multi-line comment
-    */
     
     "unicode string support \u2713"
     
