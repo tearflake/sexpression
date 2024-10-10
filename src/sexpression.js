@@ -142,44 +142,50 @@ var Sexpression = (
             }
             
             var start1 = i;
-            var start2 = start1;
-            while (start1 > 0) {
-                if (" \t\n\r".indexOf (text.charAt(start1)) === -1) {
-                    start2 = start1;
+            var end1 = start1;
+            while (true) {
+                if (" \t\r\n".indexOf (text.charAt(start1)) === -1) {
+                    end1 = start1;
                 }
-                if ("\n".indexOf (text.charAt(start1)) > -1) {
+                
+                if ("\n".indexOf (text.charAt(start1)) === -1 && start1 > -1) {
+                    start1--;
+                }
+                else {
+                    start1++;
                     break;
                 }
-                start1--;
             }
             
             i = pos + scnt;
             var allStr = "";
             var terminated = false;
             do {
-                var start = i + 1;
-                while (" \t\r".indexOf (text.charAt(start)) > -1 && start - i <= start2 - start1) {
-                    start++;
+                i++;
+                var start2 = i;
+                var end2 = start2;
+                while (" \t\r".indexOf (text.charAt(end2)) > -1 && end2 < text.length) {
+                    end2++;
                 }
                 
-                if (start - i < start2 - start1) {
-                    return {err: "Expected whitespace error", pos: start};
+                if (end2 - start2 < end1 - start1) {
+                    return {err: "Expected whitespace error", pos: start2};
                 }
-                else if (text.substr(i + 1, start2 - start1 - 1) !== text.substring(start1 + 1, start2)) {
-                    return {err: "Whitespace not equal error", pos: start};
+                else if (text.substring(start1, end1) !== text.substring(start2, end2)) {
+                    return {err: "Whitespace not matched error", pos: start2};
                 }
                 
-                i = start;
+                i = end2;
                 while ('\n'.indexOf (text.charAt (i)) === -1 && i < text.length) {
                     i++;
                 }
                 
-                if ((text.substr (start, scnt) === bound.repeat (scnt)) && text.charAt(start + scnt) !== bound) {
+                if ((text.substr (end2, scnt) === bound.repeat (scnt)) && text.charAt(end2 + scnt) !== bound) {
                     terminated = true;
                     break;
                 }
 
-                allStr += text.substring (start, i) + "\n";
+                allStr += text.substring (end2, i) + "\n";
             }
             while (text.charAt (i) === '\n');
             
@@ -188,7 +194,7 @@ var Sexpression = (
             }
             
             if (terminated) {
-                return {pos: start + scnt, val: allStr.replaceAll ("\\", "&bsol;")};
+                return {pos: end2 + scnt, val: allStr.replaceAll ("\\", "&bsol;")};
             }
             else {
                 if (bound === '"') {
