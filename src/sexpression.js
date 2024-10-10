@@ -164,14 +164,14 @@ var Sexpression = (
                 i++;
                 var start2 = i;
                 var end2 = start2;
-                while (" \t\r".indexOf (text.charAt(end2)) > -1 && end2 < text.length) {
+                while (" \t\r".indexOf (text.charAt(end2)) > -1 && end2 < start2 + end1 - start1) {
                     end2++;
                 }
                 
                 if (end2 - start2 < end1 - start1) {
-                    return {err: "Expected whitespace error", pos: start2};
+                    return {err: "Expected whitespace error", pos: end2};
                 }
-                else if (text.substring(start1, end1) !== text.substring(start2, end2)) {
+                else if (text.substring(start1, end1) !== text.substring(start2, start2 + end1 - start1)) {
                     return {err: "Whitespace not matched error", pos: start2};
                 }
                 
