@@ -39,7 +39,12 @@ var Sexpression = (
                 return ret.val;
             }
             else {
-                return {err: "Expected end of file error", pos: ret.pos};
+                //if (text.charAt (ret.pos) === '/') {
+                //    return {err: "Unterminated comment error", pos: ret.pos};
+                //}
+                //else {
+                    return {err: "Expected end of file error", pos: ret.pos};
+                //}
             }
         }
         
@@ -49,30 +54,49 @@ var Sexpression = (
                 while (i < text.length && " \t\n\r".indexOf(text.charAt(i)) > -1) {
                     i++;
                 }
-
-                if (text.substr(i, 2) == "//") {
-                    for (var j = i + 2; j < text.length && text.charAt(j) !== "\n"; j++);
-                    if (j < text.length) {
-                        i = j + 1;
+                
+                if (text.charAt (i) === '/') {
+                    var ret = blockChoice(text, i, '/');
+                    if (ret.err) {
+                        return ret;
                     }
                     else {
-                        i = j;
+                        i = ret.pos;
                     }
                 }
-                else if (text.substr(i, 2) == "/*") {
-                    for (var j = i + 2; j < text.length && text.substr(j, 2) !== "*/"; j++);
-                    if (j < text.length) {
-                        i = j + 2;
-                    }
-                }
-                
             }
             while (i > pos);
             
-            return i;
+            return {pos: i};
         }
         
-        var parseString = function (text, pos) {
+        var blockChoice = function (text, i, bound) {
+            var ret, bound;
+            var scnt = 1;
+            if (!bound) {
+                if (text.charAt (i) === '"') {
+                    bound = '"';
+                }
+                else if (text.charAt (i) === '/') {
+                    bound = '/';
+                }
+            }
+            
+            while (text.charAt (i + scnt) === bound) {
+                scnt++;
+            }
+            
+            if (scnt > 1 && scnt % 2 === 1) {
+                ret = parseMLBlock (text, bound, i, scnt);
+            }
+            else {
+                ret = parseBlock (text, bound, i);
+            }
+            
+            return ret;
+        };
+        
+        var parseBlock = function (text, bound, pos) {
             var i = pos;
             var lastToken = i;
             do {
@@ -83,23 +107,33 @@ var Sexpression = (
                     i++;
                 }
             }
-            while ('"\n'.indexOf (text.charAt (i)) === -1 && i < text.length);
+            while ((bound + '\n').indexOf (text.charAt (i)) === -1 && i < text.length);
             
-            if (text.charAt (i) === '"') {
-                try {
-                    i++;
-                    return {pos: i, val: JSON.parse(text.substring (lastToken, i)).replaceAll ("\\", "&bsol;")};
+            if (text.charAt (i) === bound) {
+                i++;
+                if (bound === '"') {
+                    try {
+                        return {pos: i, val: JSON.parse(text.substring (lastToken, i)).replaceAll ("\\", "&bsol;")};
+                    }
+                    catch {
+                        return {err: "Unicode string syntax error", pos: lastToken}
+                    }
                 }
-                catch {
-                    return {err: "Unicode string syntax error", pos: lastToken}
+                else {
+                    return {pos: i, val: text.substring (lastToken, i).replaceAll ("\\", "&bsol;")};
                 }
             }
             else {
-                return {err: "Unterminated string error", pos: lastToken};
+                if (bound === '"') {
+                    return {err: "Unterminated string error", pos: lastToken};
+                }
+                else if (bound === '/') {
+                    return {err: "Unterminated comment error", pos: lastToken};
+                }
             }
         }
         
-        var parseMLString = function (text, pos, scnt) {
+        var parseMLBlock = function (text, bound, pos, scnt) {
             var i = pos;
             var lastToken = i;
             
@@ -131,13 +165,16 @@ var Sexpression = (
                 if (start - i < start2 - start1) {
                     return {err: "Expected whitespace error", pos: start};
                 }
+                else if (text.substr(i + 1, start2 - start1 - 1) !== text.substring(start1 + 1, start2)) {
+                    return {err: "Whitespace not equal error", pos: start};
+                }
                 
                 i = start;
                 while ('\n'.indexOf (text.charAt (i)) === -1 && i < text.length) {
                     i++;
                 }
                 
-                if ((text.substr (start, scnt) === '"'.repeat (scnt)) && text.charAt(start + scnt) !== '"') {
+                if ((text.substr (start, scnt) === bound.repeat (scnt)) && text.charAt(start + scnt) !== bound) {
                     terminated = true;
                     break;
                 }
@@ -146,24 +183,31 @@ var Sexpression = (
             }
             while (text.charAt (i) === '\n');
             
+            if (bound === "/") {
+                allStr = bound.repeat (scnt) + '\n' + allStr + bound.repeat (scnt);
+            }
+            
             if (terminated) {
                 return {pos: start + scnt, val: allStr.replaceAll ("\\", "&bsol;")};
             }
             else {
-                return {err: "Unterminated multiline string error", pos: lastToken};
+                if (bound === '"') {
+                    return {err: "Unterminated string error", pos: lastToken};
+                }
+                else if (bound === '/') {
+                    return {err: "Unterminated comment error", pos: lastToken};
+                }
             }
         }
         
         var parseAtom = function (text, pos) {
             var i, lastToken, ret;
-            i = skipWhitespace (text, pos);
-            if (text.substr (i, 2) === "/*") {
-                return {err: "Unterminated multiline comment error", pos: i};
+            var ws = skipWhitespace (text, pos);
+            if (ws.err) {
+                return ws;
             }
-            else if (text.substr (i, 2) === "*/") {
-                return {err: "Unexpected end of multiline comment error", pos: i};
-            }
-
+            
+            i = ws.pos;
             lastToken = i;
             var pref = "";
             while(text.charAt (i) === '\\') {
@@ -172,22 +216,12 @@ var Sexpression = (
                 ret = false;
             }
 
-            if (text.charAt (i) === '"') {
-                var scnt = 1;
-                while (text.charAt (i + scnt) === '"') {
-                    scnt++;
-                }
-                
-                if (scnt > 1 && scnt % 2 === 1) {
-                    ret = parseMLString (text, i, scnt);
-                }
-                else {
-                    ret = parseString (text, i);
-                }
-                
+            if ('"/'.indexOf (text.charAt (i)) > -1) {
+                ret = blockChoice (text, i)
                 if (ret.err) {
                     return ret;
                 }
+                
                 i = ret.pos;
                 ret = pref + ret.val;
             }
@@ -205,32 +239,29 @@ var Sexpression = (
                 return {err: "Expected atom error", pos: i};
             }
 
-            i = skipWhitespace (text, i);
+            var ws = skipWhitespace (text, i);
+            if (ws.err) {
+                return ws;
+            }
+            
+            i = ws.pos;
 
-            if (text.substr (i, 2) === "/*") {
-                return {err: "Unterminated multiline comment error", pos: i};
-            }
-            else if (text.substr (i, 2) === "*/") {
-                return {err: "Unexpected end of multiline comment error", pos: i};
-            }
-            else {
-                return {pos: i, val: ret};
-            }
-        }
+            return {pos: i, val: ret};
+        };
         
         var parseList = function (text, pos, normalize, path, p) {
             var lastToken;
             var listType;
             var arr = [];
-            var i = skipWhitespace (text, pos);
+            var ws = skipWhitespace (text, pos);
+            if (ws.err) {
+                return ws;
+            }
+            
+            var i = ws.pos;
+
             if (i === text.length) {
                 return {err: "Unexpected end of file", pos: i};
-            }
-            else if (text.substr (i, 2) === "/*") {
-                return {err: "Unterminated multiline comment error", pos: i};
-            }
-            else if (text.substr (i, 2) === "*/") {
-                return {err: "Unexpected end of multiline comment error", pos: i};
             }
             else if ('('.indexOf (text.charAt (i)) > -1) {
                 listType = '('.indexOf (text.charAt (i));
@@ -271,37 +302,35 @@ var Sexpression = (
                 }
                 
                 if (path && p === path.length - 1 && path[p] === arr.length - 1) {
-                    return {err: "Syntax error", pos: skipWhitespace (text, lastToken)};
+                    return {err: "Syntax error", pos: skipWhitespace (text, lastToken).pos};
                 }
             }
             while (i > lastToken);
             
             if (path && p === path.length - 1 && path[p] > arr.length - 1) {
-                return {err: "Too few list elements", pos: skipWhitespace (text, pos)};
+                return {err: "Too few list elements", pos: skipWhitespace (text, pos).pos};
             }
 
             if (')'.indexOf (text.charAt (i)) === listType) {
                 //arr.push (')'.charAt (listType));
-                i = skipWhitespace (text, i + 1);
-                if (text.substr (i, 2) === "/*") {
-                    return {err: "Unterminated multiline comment error", pos: i};
+                var ws = skipWhitespace (text, i + 1);
+                if (ws.err) {
+                    return ws;
                 }
-                else if (text.substr (i, 2) === "*/") {
-                    return {err: "Unexpected end of multiline comment error", pos: i};
-                }
-                else {
-                    if (normalize) {
-                        //var lastExpr = ['(', ')'];
-                        var lastExpr = [];
-                        for (var j = arr.length - 2; j > 0; j--) {
-                            lastExpr = ['('.charAt (listType), arr[j], lastExpr, ')'.charAt (listType)];
-                        }
-                        
-                        arr = lastExpr;
+                
+                i = ws.pos;
+                //i = skipWhitespace (text, i + 1);
+                if (normalize) {
+                    //var lastExpr = ['(', ')'];
+                    var lastExpr = [];
+                    for (var j = arr.length - 2; j > 0; j--) {
+                        lastExpr = ['('.charAt (listType), arr[j], lastExpr, ')'.charAt (listType)];
                     }
                     
-                    return {pos: i, val: arr};
+                    arr = lastExpr;
                 }
+                
+                return {pos: i, val: arr};
             }
             else if (text.charAt(i) === '\n'){
                 return {err: "Unterminated string", pos: lastToken};
@@ -313,7 +342,7 @@ var Sexpression = (
         
         var getErr = function (text, path) {
             if (path.length === 0) {
-                return {err: "Top node error", pos: skipWhitespace(text, 0)};
+                return {err: "Top node error", pos: skipWhitespace(text, 0).pos};
             }
             else {
                 return parse (text, undefined, path, 0);

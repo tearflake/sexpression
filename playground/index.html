@@ -146,7 +146,7 @@
              <td class="exRound" id="top" valign="middle" height="28" width="100%" style="color:rgb(48,48,48); background-color:rgb(208,208,208);">
                 <font style="font-size:14px">
                 <b>
-                  s-expression: &nbsp;&nbsp;
+                  s-expression input: &nbsp;&nbsp;
                 </b>
                 </font>
              </td>
@@ -188,7 +188,7 @@
              <td class="exRound" id="top" valign="middle" height="28" style="color:rgb(48,48,48); background-color:rgb(208,208,208); white-space: nowrap; overflow: hidden; max-width: 0vw;">
                 <font style="font-size:14px">
                 <b class="button">
-                  JSON output:
+                  array output:
                     <a id="bck1" onclick="process()" href="javascript:" style="text-decoration: none;">
                     <span style="padding-left: 10px; padding-right: 10px;">
                     <b>process</b>
@@ -297,17 +297,17 @@
     function populate (param) {
         input1.setValue (
 `
-/*
-    this is a
-    multi-line comment
-*/
+///
+this is a
+multi-line comment
+///
 
 (
     single-atom
     
     (
         these are nested atoms
-        (and more nested atoms) // this is a single-line comment
+        (and more nested atoms) /this is a single-line comment/
     )
     
     "unicode string support \\u2713"
