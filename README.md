@@ -1,4 +1,4 @@
-# sexpression v1.0.0
+# sexpression v0.1.2
 
 ## about s-expressions
 
@@ -19,20 +19,20 @@ One of the most distinctive features of S-expressions is their uniform represent
 
 ## project specifics
 
-This package contains a modernized version of s-expression parser for Javascript. Beside ordinary s-expression support, it features peculiar style comments, Unicode strings, and indented multi-line strings. S-expressions handled by this package may appear like the following:
+This package contains a modernized version of s-expression parser for Javascript. Beside ordinary s-expression support, it borrows C style comments, Unicode strings, and Python style multi-line strings. S-expressions handled by this package may appear like the following:
 
 ```
-///
-this is a
-multi-line comment
-///
+/*
+    this is a
+    multi-line comment
+*/
 
 (
     single-atom
     
     (
         these are nested atoms
-        (and more nested atoms) /this is a single-line comment/
+        (and more nested atoms) // this is a single-line comment
     )
     
     "unicode string support \u2713"

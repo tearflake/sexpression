@@ -6,6 +6,3 @@
     - basic s-expression parser
     - C style comments
     - unicode strings and multiline strings
-
-- v1.0.x
-    - peculiar style comments
