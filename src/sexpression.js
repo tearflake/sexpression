@@ -20,8 +20,6 @@ var Sexpression = (
     }
 ) (
     (function () {
-        "use strict";
-        
         var parse = function (text, normalize, path, p) {
             var ret;
             ret = parseList (text, 0, normalize, path, p);
@@ -39,12 +37,7 @@ var Sexpression = (
                 return ret.val;
             }
             else {
-                //if (text.charAt (ret.pos) === '/') {
-                //    return {err: "Unterminated comment error", pos: ret.pos};
-                //}
-                //else {
-                    return {err: "Expected end of file error", pos: ret.pos};
-                //}
+                return {err: "Expected end of file error", pos: ret.pos};
             }
         }
         
@@ -207,8 +200,9 @@ var Sexpression = (
         }
         
         var parseAtom = function (text, pos) {
-            var i, lastToken, ret;
-            var ws = skipWhitespace (text, pos);
+            var i, lastToken, ret, ws;
+            
+            ws = skipWhitespace (text, pos);
             if (ws.err) {
                 return ws;
             }
@@ -232,7 +226,7 @@ var Sexpression = (
                 ret = pref + ret.val;
             }
             else {
-                while ('"\\() \t\n\r'.indexOf (text.charAt (i)) === -1 && text.substr(i, 2) !== "//" && text.substr(i, 2) !== "/*" && i < text.length) {
+                while ('"\\/() \t\n\r'.indexOf (text.charAt (i)) === -1 && text.substr(i, 2) !== "//" && text.substr(i, 2) !== "/*" && i < text.length) {
                     i++;
                 }
                 
@@ -245,7 +239,7 @@ var Sexpression = (
                 return {err: "Expected atom error", pos: i};
             }
 
-            var ws = skipWhitespace (text, i);
+            ws = skipWhitespace (text, i);
             if (ws.err) {
                 return ws;
             }
@@ -256,10 +250,10 @@ var Sexpression = (
         };
         
         var parseList = function (text, pos, normalize, path, p) {
-            var lastToken;
-            var listType;
-            var arr = [];
-            var ws = skipWhitespace (text, pos);
+            var lastToken, listType, arr, ws;
+            
+            arr = [];
+            ws = skipWhitespace (text, pos);
             if (ws.err) {
                 return ws;
             }
@@ -319,13 +313,13 @@ var Sexpression = (
 
             if (')'.indexOf (text.charAt (i)) === listType) {
                 //arr.push (')'.charAt (listType));
-                var ws = skipWhitespace (text, i + 1);
+                ws = skipWhitespace (text, i + 1);
                 if (ws.err) {
                     return ws;
                 }
                 
                 i = ws.pos;
-                //i = skipWhitespace (text, i + 1);
+
                 if (normalize) {
                     //var lastExpr = ['(', ')'];
                     var lastExpr = [];
