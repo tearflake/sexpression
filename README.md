@@ -24,7 +24,8 @@ This package contains a modernized version of s-expression parser for Javascript
 ```
 ///
 this is a
-multi-line comment
+multi-line
+comment
 ///
 
 (
@@ -49,7 +50,7 @@ multi-line comment
 
 ## resources
 
-Explore the [online playground](https://tearflake.github.io/sexpression/playground/).
+Explore this package in the [online playground](https://tearflake.github.io/sexpression/playground/).
 
 ## javascript API access
 
