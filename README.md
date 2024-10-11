@@ -59,6 +59,6 @@ To access the API from browser, clone this repository from GitHub: `git clone ht
 Below, use the package as:
 
 ```
-var output = Sexpression.parse("(a b c)");
-console.log(JSON.stringify(output, null, 4));
+var arrOutput = Sexpression.parse("(a b c)");
+console.log(JSON.stringify(arrOutput, null, 4));
 ```
