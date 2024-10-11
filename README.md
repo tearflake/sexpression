@@ -37,7 +37,7 @@ comment
 
 ## resources
 
-- Explore this package in the [online playground](https://tearflake.github.io/sexpression/playground/).
+- Test this package in the [online playground](https://tearflake.github.io/sexpression/playground/).
 - Read the [Sexpression specification](https://tearflake.github.io/sexpression/docs/sexpression).
 
 ## javascript API access
