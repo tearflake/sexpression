@@ -13,13 +13,13 @@ Lists can be nested, allowing for the representation of complex hierarchical str
 
 `(eq (pow x 2) (mul x x))`
 
-This S-expression represents equality between square and multiplication.
+This S-expression depicts equality between square and multiplication.
 
 One of the most distinctive features of S-expressions is their uniform representation of code and data. Where S-expressions are supported, code itself is written as S-expression, which means that programs can easily manipulate other programs as data, enabling powerful metaprogramming capabilities. S-expressions are a versatile and uniform notation for representing both code and data in a nested, list-based structure. 
 
 ## project specifics
 
-This package contains a modernized version of s-expression parser for Javascript. Beside ordinary s-expression support, it features peculiar style comments, Unicode strings, and indented multi-line strings. S-expressions handled by this package may appear like the following:
+This package contains a modernized version of s-expression parser for Javascript. Beside ordinary s-expression support, it features peculiar style comments, Unicode strings, and indent sensitive multi-line strings. Other than explaining all the specific of this package, we expose all its features in the example:
 
 ```
 ///
@@ -32,18 +32,20 @@ comment
     single-atom
     
     (
-        these are nested atoms
-        (and more nested atoms) /this is a single-line comment/
+        /this is a comment/
+        this is a nested list
+        (
+            one more list /also a comment/
+        )
     )
     
-    "unicode string support \u2713"
+    "unicode string \u2713"
     
     (more atoms)
     
     """
     indent sensitive
     multi-line string
-    support
     """
 )
 ```
