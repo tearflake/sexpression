@@ -320,16 +320,6 @@ var Sexpression = (
                 
                 i = ws.pos;
 
-                if (normalize) {
-                    //var lastExpr = ['(', ')'];
-                    var lastExpr = [];
-                    for (var j = arr.length - 2; j > 0; j--) {
-                        lastExpr = ['('.charAt (listType), arr[j], lastExpr, ')'.charAt (listType)];
-                    }
-                    
-                    arr = lastExpr;
-                }
-                
                 return {pos: i, val: arr};
             }
             else if (text.charAt(i) === '\n'){
