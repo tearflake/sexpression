@@ -64,8 +64,8 @@ var Sexpression = (
         }
         
         var blockChoice = function (text, i, bound) {
-            var ret, bound;
-            var scnt = 1;
+            var ret, bound, scnt;
+            scnt = 1;
             if (!bound) {
                 if (text.charAt (i) === '"') {
                     bound = '"';
@@ -90,8 +90,9 @@ var Sexpression = (
         };
         
         var parseBlock = function (text, bound, pos) {
-            var i = pos;
-            var lastToken = i;
+            var i, lastToken;
+            i = pos;
+            lastToken = i;
             do {
                 if (text.charAt (i) === "\\") {
                     i += 2;
@@ -127,15 +128,16 @@ var Sexpression = (
         }
         
         var parseMLBlock = function (text, bound, pos, scnt) {
-            var i = pos;
-            var lastToken = i;
+            var i, lastToken, start1, end1, start2, end2, allStr, terminated;
+            i = pos;
+            lastToken = i;
             
             if (text.charAt (pos + scnt) !== "\n") {
                 return {err: "Expected new line error", pos: pos + scnt}
             }
             
-            var start1 = i;
-            var end1 = start1;
+            start1 = i;
+            end1 = start1;
             while (true) {
                 if (" \t\r\n".indexOf (text.charAt(start1)) === -1) {
                     end1 = start1;
@@ -151,12 +153,12 @@ var Sexpression = (
             }
             
             i = pos + scnt;
-            var allStr = "";
-            var terminated = false;
+            allStr = "";
+            terminated = false;
             do {
                 i++;
-                var start2 = i;
-                var end2 = start2;
+                start2 = i;
+                end2 = start2;
                 while (" \t\r".indexOf (text.charAt(end2)) > -1 && end2 < start2 + end1 - start1) {
                     end2++;
                 }
@@ -200,8 +202,7 @@ var Sexpression = (
         }
         
         var parseAtom = function (text, pos) {
-            var i, lastToken, ret, ws;
-            
+            var i, lastToken, ret, ws, pref;
             ws = skipWhitespace (text, pos);
             if (ws.err) {
                 return ws;
@@ -209,7 +210,7 @@ var Sexpression = (
             
             i = ws.pos;
             lastToken = i;
-            var pref = "";
+            pref = "";
             while(text.charAt (i) === '\\') {
                 i++;
                 pref += "\\";
@@ -250,16 +251,14 @@ var Sexpression = (
         };
         
         var parseList = function (text, pos, normalize, path, p) {
-            var lastToken, listType, arr, ws;
-            
+            var i, lastToken, listType, arr, ws;
             arr = [];
             ws = skipWhitespace (text, pos);
             if (ws.err) {
                 return ws;
             }
             
-            var i = ws.pos;
-
+            i = ws.pos;
             if (i === text.length) {
                 return {err: "Unexpected end of file", pos: i};
             }
