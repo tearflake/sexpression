@@ -1,25 +1,10 @@
-# sexpression v1.0.1
+# sexpression v1.0.2
 
-## about s-expressions
-
-S-expressions (Symbolic Expressions) are a fundamental concept in computer science and programming language theory. S-expressions are a simple, yet powerful notation for representing nested list data structures and code in a parenthesized form. They are commonly associated with the Lisp family of programming languages, where they serve both as a way to represent code and data uniformly.
-
-The general form of an S-expression is either:
-
-- An atom (e.g., `atom`), or
-- A list of S-expressions (e.g., `(expr1 expr2 expr3)`).
-
-Lists can be nested, allowing for the representation of complex hierarchical structures. For example:
-
-`(eq (pow x 2) (mul x x))`
-
-This S-expression depicts equality between square and multiplication.
-
-One of the most distinctive features of S-expressions is their uniform representation of code and data. Where S-expressions are supported, code itself is written as S-expression, which means that programs can easily manipulate other programs as data, enabling powerful metaprogramming capabilities. S-expressions are a versatile and uniform notation for representing both code and data in a nested, list-based structure. 
+S-expression language is a formal language for representing data and code. *Sexpression* project is an implementation of s-expression language.
 
 ## project specifics
 
-This package contains a modernized version of s-expression parser for Javascript. Beside ordinary s-expression support, it features peculiar style comments, Unicode strings, and indent sensitive multi-line strings. Other than explaining all the specific of this package, we expose all its features in the example:
+This package contains a version of s-expression parser written in Javascript. Beside ordinary s-expression support, it features peculiar style comments, Unicode strings, and indent sensitive multi-line strings. In short, we expose all of its features in the following example:
 
 ```
 ///
@@ -52,7 +37,8 @@ comment
 
 ## resources
 
-Explore this package in the [online playground](https://tearflake.github.io/sexpression/playground/).
+- Explore this package in the [online playground](https://tearflake.github.io/sexpression/playground/).
+- Read the [Sexpression specification](https://tearflake.github.io/sexpression/docs/sexpression).
 
 ## javascript API access
 

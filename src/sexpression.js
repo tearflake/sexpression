@@ -1,4 +1,4 @@
-// s-expr.mjs
+// s-expr.js
 // (c) tearflake, 2024
 // MIT License
 
