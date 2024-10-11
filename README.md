@@ -4,7 +4,7 @@ S-expression language is a formal language for representing data and code. *Sexp
 
 ## project specifics
 
-This package contains a version of s-expression parser written in Javascript. Beside ordinary s-expression support, it features peculiar style comments, Unicode strings, and indent sensitive multi-line strings. In short, we expose all of its features in the following example:
+This package contains a version of s-expression parser written in Javascript. Beside ordinary s-expression support, it features peculiar style comments, Unicode strings, and indent sensitive multi-line strings. In short, we expose all of its features by the following example:
 
 ```
 ///
