@@ -68,7 +68,7 @@ The above grammar defines the syntax of *Sexpression*. To interpret these gramma
 
 Some expressions (`<string>` and `<comment>`) may span over multiple lines. In those cases, each line is expected to share the same whitespace prefix.
 
-Comments are not a part of s-expression definition, and they serve as additional utility for annotating code written in *Sexpression*.
+Notice that comments are not a part of s-expression definition, and they serve as additional utility for annotating code written in *Sexpression*.
 
 ## 4. conclusion
 

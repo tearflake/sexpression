@@ -1,10 +1,10 @@
-# sexpression v1.0.2
+# sexpression v1.0.3
 
-S-expression language is a formal language for representing data and code. *Sexpression* project is an implementation of s-expression language.
+S-expression is a formal language for representing data and code. *Sexpression* project is an implementation of s-expression language parser.
 
 ## project specifics
 
-This package contains a version of s-expression parser written in Javascript. Beside ordinary s-expression support, it features peculiar style comments, Unicode strings, and indent sensitive multi-line strings. In short, we expose all of its features by the following example:
+This package contains a version of s-expression parser written in Javascript. Beside ordinary s-expression support, it features peculiar style comments and indent sensitive multi-line strings. In short, we expose all of its features by the following example:
 
 ```
 ///

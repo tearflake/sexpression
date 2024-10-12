@@ -1,4 +1,4 @@
-// s-expr.js
+// sexpression.js
 // (c) tearflake, 2024
 // MIT License
 
@@ -215,6 +215,10 @@ var Sexpression = (
                 i++;
                 pref += "\\";
                 ret = false;
+            }
+
+            if(ret === false && text.charAt (i) === '/') {
+                return {err: "Expected atom error", pos: i};
             }
 
             if ('"/'.indexOf (text.charAt (i)) > -1) {
