@@ -11,13 +11,14 @@
 - [1. introduction](#1-introduction)  
 - [2. informal definition](#2-informal-definition)  
 - [3. formal definition](#3-formal-definition)  
-- [4. conclusion](#4-conclusion)  
+- [4. strings and comments](#4-strings-and-comments)
+- [5. conclusion](#5-conclusion)  
 
 ## 1. introduction
 
 S-expressions (Symbolic Expressions) are a fundamental concept in computer science and programming language theory. S-expressions are a simple, yet powerful notation for representing nested list data structures and code in a parenthesized form. They are commonly associated with the Lisp family of programming languages, where they serve both as a way to represent code and data uniformly.
 
-*Sexpression* is a s-expression parsing library. It features peculiar decisions in syntax definition regarding strings and comments.
+*Sexpression* is a S-expression parsing library. Other than usual treatment of atoms and lists, it features peculiar decisions in syntax definition regarding strings and comments.
 
 ## 2. informal definition
 
@@ -28,49 +29,85 @@ The general form of an S-expression is either:
 
 Lists can be nested, allowing for the representation of complex hierarchical structures. For example:
 
-`(eq (pow x 2) (mul x x))`
+`(eq (mul x x) (pow x 2))`
 
-This S-expression depicts equality between square and multiplication.
+This S-expression depicts equality between multiplication and square.
 
 ## 3. formal definition
 
 In computer science, syntax of a language is a set of acceptable expressions defined by a grammar. We bring the syntax of *Sexpression* in a relaxed kind of Backus-Naur form syntax rules:
 
 ```
-        <start> := <whitespace>* <primary> <whitespace>*
-                 | ( <whitespace>* <list> <whitespace>* )
-                 | ( <whitespace>* )
-                 
-         <list> := <primary> <whitespace>* <list>
-                 | <primary>     
-                
-      <primary> := <ATOM>
-                 | <string>
-                 | ( <start> )
+         <start> := <whitespace>* <element> <whitespace>*
 
-   <whitespace> := <TAB>
-                 | <SPACE>
-                 | <RETURN>
-                 | <comment>
-              
-       <string> := " <CHAR-EXCEPT-NEWLINE>* "
-                 | """
-                   <CHAR>*
-                   """
-    
-      <comment> := / <CHAR-EXCEPT-NEWLINE>* /
-                 | ///
-                   <CHAR>*
-                   ///
+       <element> := <ATOM>
+                  | "(" <list> ")"
+
+          <list> := (<whitespace>* <element>)* <whitespace>*
+
+    <whitespace> := <SPACE>
+                  | <NEW-LINE>
 ```
 
-The above grammar defines the syntax of *Sexpression*. To interpret these grammar rules, we use special symbols: `<...>` for noting identifiers, `... := ...` for expressing assignment, `...+` for one or more occurrences, `...*` for zero or more occurrences, `...?` for optional appearance, and `... | ...` for alternation between expressions. All other symbols are considered as parts of the *Sexpression* language.
+The above grammar defines the syntax of *Sexpression*. To interpret these grammar rules, we use special symbols: `... := ...` for expressing assignment, `<...>` for noting identifiers, `"..."` for terminals, `(...)` for grouping, `...+` for one or more occurrences, `...*` for zero or more occurrences, `...?` for optional appearance, and `... | ...` for alternation between expressions.
 
-Some expressions (`<string>` and `<comment>`) may span over multiple lines. In those cases, each line is expected to share the same whitespace prefix.
+## 4. strings and comments
 
-Notice that comments are not a part of s-expression definition, and they serve as additional utility for annotating code written in *Sexpression*.
+Although a great part of S-expressions power lies in its simplicity, let's introduce a few extensions in a hope of making expressed code more readable, namely: strings and comments.
 
-## 4. conclusion
+#### strings
 
-One of the most distinctive features of S-expressions is their uniform representation of code and data. In most cases where S-expressions are supported, code itself is written as S-expression, which means that programs can easily manipulate other programs as data, enabling powerful metaprogramming capabilities. S-expressions are a versatile and uniform notation for representing both code and data in a nested, list-based structure. 
+Strings in *Sexpression* may be single-line or multi-line. Single-line strings are atoms enclosed in `"..."` pairs, like in expression `"this is a single-line string"`, and represent Unicode format strings. Multi-line strings are enclosed between an odd number greater than 1 of `"` symbols in the following manner:
+
+```
+"""
+this is a
+multi-line
+string
+       """
+```
+
+Enclosing between a pair of `"""` symbols, multi-line strings are bound in a rectangle between the start of the first `"""` symbol, and the end of the second `"""` symbol. Remember to be careful when modifying contents of multi-line strings to make sure that the end of the second `"""` symbol is always placed horizontally behind the longest line in the string.
+
+Notice that it is also possible to write expressions like:
+
+```
+(fst-atom """   trd-atom)
+          00001
+          00002
+          00003
+            """
+```
+
+where the expression stands for three atoms in a list.
+
+#### comments
+
+Comment expressions are ignored by the system, and they serve as notes to help programmers reading their code. They are parsed just like strings, only using the `/` instead of the `"` symbol. Thus, a single-line comment may be written as `/this is a single-line comment/`, and may appear repeatedly wherever a whitespace is expected. They can also be spanned over multiple lines, and an example of a multi-line comment may be:
+
+```
+///
+this is a
+multi-line
+comment
+       ///
+```
+
+Just like strings, enclosing between a pair of `///` symbols, multi-line comments are bound in a rectangle between the start of the first `///` symbol, and the end of the second `///` symbol. Notice that it is also possible to write expressions like:
+
+```
+///
+00001 (
+00002   fst-atom
+00003   snd-atom
+00004   trd-atom
+00005 )
+  ///
+```
+
+where the expression stands for three atoms in a list.
+
+## 5. conclusion
+
+We defined *Sexpression* code format and introduced somewhat peculiar way to treat strings and comments. We tried to be consistent with these add-ons to keep acceptable ratio between simplicity and usability. The resulting code format is a bit more complicated than it is in usual Lispy languages, but we hope that the introduced complexity is justified by the data readability expressed this way.
 

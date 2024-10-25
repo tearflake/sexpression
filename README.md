@@ -1,37 +1,40 @@
-# sexpression v1.0.3
+# sexpression v2.0.0
 
-S-expression is a formal language for representing data and code. *Sexpression* project is an implementation of s-expression language parser.
+S-expression is a formal language for representing data and code. *Sexpression* project is an implementation of S-expression language parser.
 
 ## project specifics
 
-This package contains a version of s-expression parser written in Javascript. Beside ordinary s-expression support, it features peculiar style comments and indent sensitive multi-line strings. In short, we expose all of its features by the following example:
+This package contains a version of S-expression parser written in Javascript. Beside ordinary S-expression support, it features peculiar style comments and strings. Shortly, we expose all of its main features by the following example:
 
 ```
 ///
-this is a
-multi-line
-comment
-///
+sexpression usage examples
+                       ///
 
 (
-    single-atom
-    
-    (
-        /this is a comment/
-        this is a nested list
-        (
-            one more list /also a comment/
-        )
-    )
-    
-    "unicode string \u2713"
-    
-    (more atoms)
-    
-    """
-    indent sensitive
-    multi-line string
-    """
+  atom
+
+  (
+    /this is a comment/                                    ///
+    this is a list                                         this is a   
+    (                                                      multi-line
+      /one more comment/ one more list /also a comment/    comment
+    )                                                             ///   
+  )
+  
+  "this is an unicode string \u2713"
+  
+  """      
+  this is a
+  multi-line
+  string
+         """
+  
+  (atom1 """    atom2)
+         middle
+         block
+         string
+            """
 )
 ```
 
@@ -42,7 +45,7 @@ comment
 
 ## javascript API access
 
-*Sexpression* may expose its functionality through javascript API, both in Node.js and browser.
+*Sexpression* may bring its functionality through javascript API, both in Node.js and browser.
 
 To access the API from Node.js, install it by: `npm i @tearflake/sexpression`, and include the following line in your code:
 
@@ -56,9 +59,9 @@ To access the API from browser, clone this repository from GitHub: `git clone ht
 <script src="./src/sexpression.js"></script>
 ```
 
-Below, use the package as:
+Below, in both cases, use the package as:
 
 ```
-var arrOutput = Sexpression.parse("(a b c)");
+var arrOutput = Sexpression.parse('(a b c)');
 console.log(JSON.stringify(arrOutput, null, 4));
 ```

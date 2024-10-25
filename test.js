@@ -5,7 +5,7 @@
 "use strict";
 
 var Sexpression = require ("./src/sexpression.js");
-var output = Sexpression.parse ("(a b c)");
+var output = Sexpression.parse ('(a b c)');
 console.log (JSON.stringify (output, null, 4));
 
 

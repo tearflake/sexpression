@@ -8,330 +8,333 @@ var Sexpression = (
     function (obj) {
         return {
             parse: obj.parse,
-            getErr: obj.getErr,
+            getNodePos: obj.getNodePos,
             normalizeSexpr: obj.normalizeSexpr,
             denormalizeSexpr: obj.denormalizeSexpr,
             denormalizeIndexes: obj.denormalizeIndexes,
             levelOut: obj.levelOut,
             getLevel: obj.getLevel,
-            getMmmLevel: obj.getMmmLevel,
+            getMaxLevel: obj.getMmmLevel,
             stringify: obj.stringify
         };
     }
 ) (
     (function () {
-        var parse = function (text, normalize, path, p) {
-            var ret;
-            ret = parseList (text, 0, normalize, path, p);
-            if (ret.err === "Expected parenthesis error: '('") {
-                ret = parseAtom (text, 0);
-                if (ret.val === undefined && !ret.err) {
-                    ret = {pos: ret.pos, err: "Expected content error"};
-                }
-            }
-
-            if (ret.err) {
-                return ret;
-            }
-            else if (ret.pos === text.length) {
-                return ret.val;
-            }
-            else {
-                return {err: "Expected end of file error", pos: ret.pos};
-            }
+        var err = [];
+        err[0] = "'\\t' character not allowed error";
+        err[1] = "'\\v' character not allowed error";
+        err[2] = "Expected end of S-expression error";
+        err[3] = "Unexpected end of S-expression error";
+        err[4] = "Unicode string syntax error";
+        err[5] = "Unexpected end of line error";
+        err[6] = "Block not terminated error";
+        err[7] = "Unresolved block error";
+        err[8] = "Expected ' ' error";
+        
+        var parse = function (text) {
+            var m = createMatrix (text);
+            var p = parseMatrix (m.l, m.m);
+            return p;
         }
         
-        var skipWhitespace = function (text, i) {
-            do {
-                var pos = i;
-                while (i < text.length && " \t\n\r".indexOf(text.charAt(i)) > -1) {
-                    i++;
+        var createMatrix = function (text) {
+            var l, m, i;
+            
+            l = []
+            text = text.replaceAll ("\r\n", "\n");
+            m = text.split ("\n");
+            for (i = 0; i < m.length; i++) {
+                l[i] = m[i].length;
+                m[i] = m[i].split ("");
+            }
+            
+            return {l: l, m: m};
+        }
+        
+        var parseMatrix = function (l, m) {
+            var b, x, y, pos, i, tmpPos, stack, currChar, currAtom, val;
+            
+            b = [];
+            y = 0;
+            x = 1;
+            pos = [0, 0];
+            //pos = skipWhitespace (m, pos[y], pos[x]);
+            stack = [];
+            while (pos[y] < m.length) {
+                while (b[0] && b[0][2] < pos[y]) {
+                    b.shift ();
                 }
                 
-                if (text.charAt (i) === '/') {
-                    var ret = blockChoice(text, i, '/');
-                    if (ret.err) {
-                        return ret;
+                for (i = 0; i < b.length; i++) {
+                    if (pos[y] >= b[i][0] && pos[x] >= b[i][1] && pos[y] <= b[i][2] && pos[x] <= b[i][3]) {
+                        pos[x] = Math.max (b[i][3], pos[x]);
+                    }
+                }
+                
+                currChar = m[pos[y]][pos[x]];
+                if (currChar === "\t") {
+                    return {err: err[0], pos: {y: pos[y], x: pos[x]}};
+                }
+                else if (currChar === "\v") {
+                    return {err: err[1], pos: {y: pos[y], x: pos[x]}};
+                }
+                
+                if (currChar === '/' || currChar === ' ' || currChar === undefined) {
+                    tmpPos = skipWhitespace (l, m, b, pos[y], pos[x]);
+                    if (tmpPos.err) {
+                        return tmpPos;
+                    }
+                    
+                    if (m[tmpPos[y]] === undefined) {
+                        tmpPos[y] = m.length - 1;
+                        tmpPos[x] = 0;
+                        while (m[tmpPos[y]] && m[tmpPos[y]][tmpPos[x]] !== undefined) {
+                            tmpPos[x]++;
+                        }
+                        
+                        return {err: err[3], pos: {y: tmpPos[y], x: tmpPos[x]}};
+                    }
+                    
+                    pos = tmpPos;
+                }
+                else if (currChar === '(') {
+                    stack.push ([]);
+                    pos[x]++;
+                }
+                else if (currChar === ')') {
+                    pos[x]++;
+                    if (stack.length > 1) {
+                        stack[stack.length - 2].push (stack[stack.length - 1]);
+                        stack.pop ();
                     }
                     else {
-                        i = ret.pos;
+                        val = stack[stack.length - 1];
+                        break;
+                    }
+                }
+                else if ('"'.indexOf (currChar) > -1) {
+                    currAtom = getBlock (l, m, pos, currChar);
+                    if (currAtom.err) {
+                        return currAtom;
+                    }
+                    else {
+                        b.push (currAtom.rect);
+                        pos[y] = currAtom.rect[0];
+                        pos[x] = currAtom.rect[3];
+                        if (stack.length > 0) {
+                            stack[stack.length - 1].push (currAtom.val);
+                            if (m[pos[y]][pos[x]] === undefined) {
+                                pos[y]++;
+                                pos[x] = 0;
+                            }
+                        }
+                        else {
+                            val = currAtom.val;
+                            break;
+                        }
+                    }
+                }
+                else if (' ()"/'.indexOf (currChar) === -1 && currChar !== undefined) {
+                    currAtom = "";
+                    br1: while (' ()'.indexOf (currChar) === -1 && currChar !== undefined) {
+                        currAtom += currChar;
+                        pos[x]++;
+                        currChar = m[pos[y]][pos[x]];
+                        for (i = 0; i < b.length; i++) {
+                            if (pos[y] >= b[i][0] && pos[x] >= b[i][1] && pos[y] <= b[i][2] && pos[x] <= b[i][3]) {
+                                break br1;
+                            }
+                        }
+                    }
+
+                    if (stack.length > 0) {
+                        stack[stack.length - 1].push (currAtom);
+                    }
+                    else {
+                        val = currAtom;
+                        break;
                     }
                 }
             }
-            while (i > pos);
             
-            return {pos: i};
-        }
-        
-        var blockChoice = function (text, i, bound) {
-            var ret, bound, scnt;
-            scnt = 1;
-            if (!bound) {
-                if (text.charAt (i) === '"') {
-                    bound = '"';
-                }
-                else if (text.charAt (i) === '/') {
-                    bound = '/';
-                }
+            pos = skipWhitespace (l, m, b, pos[y], pos[x]);
+            if (pos.err) {
+                return pos;
             }
             
-            while (text.charAt (i + scnt) === bound) {
-                scnt++;
-            }
-            
-            if (scnt > 1 && scnt % 2 === 1) {
-                ret = parseMLBlock (text, bound, i, scnt);
+            if (pos[y] < m.length && m[pos[y]][pos[x]] !== undefined) {
+                return {err: err[2], pos: {y: pos[y], x: pos[x]}};
             }
             else {
-                ret = parseBlock (text, bound, i);
-            }
-            
-            return ret;
-        };
-        
-        var parseBlock = function (text, bound, pos) {
-            var i, lastToken;
-            i = pos;
-            lastToken = i;
-            do {
-                if (text.charAt (i) === "\\") {
-                    i += 2;
-                }
-                else {
-                    i++;
-                }
-            }
-            while ((bound + '\n').indexOf (text.charAt (i)) === -1 && i < text.length);
-            
-            if (text.charAt (i) === bound) {
-                i++;
-                if (bound === '"') {
-                    try {
-                        return {pos: i, val: JSON.parse(text.substring (lastToken, i)).replaceAll ("\\", "&bsol;")};
-                    }
-                    catch {
-                        return {err: "Unicode string syntax error", pos: lastToken}
-                    }
-                }
-                else {
-                    return {pos: i, val: text.substring (lastToken, i).replaceAll ("\\", "&bsol;")};
-                }
-            }
-            else {
-                if (bound === '"') {
-                    return {err: "Unterminated string error", pos: lastToken};
-                }
-                else if (bound === '/') {
-                    return {err: "Unterminated comment error", pos: lastToken};
-                }
+                return val;
             }
         }
         
-        var parseMLBlock = function (text, bound, pos, scnt) {
-            var i, lastToken, start1, end1, start2, end2, allStr, terminated;
-            i = pos;
-            lastToken = i;
+        var skipWhitespace = function (l, m, b, row, col) {
+            var pos, x, y, i, j, k, currAtom;
             
-            if (text.charAt (pos + scnt) !== "\n") {
-                return {err: "Expected new line error", pos: pos + scnt}
-            }
-            
-            start1 = i;
-            end1 = start1;
-            while (true) {
-                if (" \t\r\n".indexOf (text.charAt(start1)) === -1) {
-                    end1 = start1;
+            y = 0;
+            x = 1;
+            pos = [row, col];
+            while (pos[y] < m.length) {
+                for (k = 0; k < b.length; k++) {
+                    if (pos[y] >= b[k][0] && pos[x] >= b[k][1] && pos[y] <= b[k][2] && pos[x] <= b[k][3]) {
+                        pos[x] = Math.max (b[k][3], pos[x]);
+                    }
+                }
+
+                while (m[pos[y]][pos[x]] === " ") {
+                    pos[x]++;
+                    
+                    for (k = 0; k < b.length; k++) {
+                        if (pos[y] >= b[k][0] && pos[x] >= b[k][1] && pos[y] <= b[k][2] && pos[x] <= b[k][3]) {
+                            pos[x] = Math.max (b[k][3], pos[x]);
+                        }
+                    }
+
+                    if (m[pos[y]][pos[x]] === undefined) {
+                        break;
+                    }
                 }
                 
-                if ("\n".indexOf (text.charAt(start1)) === -1 && start1 > -1) {
-                    start1--;
+                if (m[pos[y]][pos[x]] === '/') {
+                    currAtom = getBlock (l, m, pos, '/');
+                    if (currAtom.err) {
+                        return currAtom;
+                    }
+                    else {
+                        b.push (currAtom.rect);
+                        pos[y] = currAtom.rect[0];
+                        pos[x] = currAtom.rect[3];
+                    }
                 }
-                else {
-                    start1++;
+                else if (m[pos[y]][pos[x]] !== undefined) {
                     break;
                 }
+                else {
+                    pos[x] = 0;
+                    pos[y]++;
+                }
             }
             
-            i = pos + scnt;
-            allStr = "";
-            terminated = false;
-            do {
-                i++;
-                start2 = i;
-                end2 = start2;
-                while (" \t\r".indexOf (text.charAt(end2)) > -1 && end2 < start2 + end1 - start1) {
-                    end2++;
-                }
-                
-                if (end2 - start2 < end1 - start1) {
-                    return {err: "Expected whitespace error", pos: end2};
-                }
-                else if (text.substring(start1, end1) !== text.substring(start2, start2 + end1 - start1)) {
-                    return {err: "Whitespace not matched error", pos: start2};
-                }
-                
-                i = end2;
-                while ('\n'.indexOf (text.charAt (i)) === -1 && i < text.length) {
+            return [pos[y], pos[x]];
+        }
+        
+        var getBlock = function (l, m, pos, bound) {
+            var i, numBounds1 = 0, numBounds2, x = 1, y = 0, currAtom = "", val;
+            var pos0 = [pos[y], pos[x]];
+            var pos1 = [pos[y], pos[x]];
+            if ('"/'.indexOf (bound) > -1) {
+                i = pos1[x];
+                numBounds1 = 0;
+                while (m[pos1[y]][i] === bound) {
                     i++;
+                    numBounds1++;
                 }
                 
-                if ((text.substr (end2, scnt) === bound.repeat (scnt)) && text.charAt(end2 + scnt) !== bound) {
-                    terminated = true;
-                    break;
+                if (numBounds1 === 1 || numBounds1 % 2 === 0) {
+                    currAtom = bound;
+                    pos1[x]++;
+                    while (m[pos1[y]][pos1[x]] !== undefined && m[pos1[y]][pos1[x]] !== bound && pos1[x] < l[pos1[y]]) {
+                        currAtom += m[pos1[y]][pos1[x]];
+                        pos1[x]++;
+                        if (m[pos1[y]][pos1[x]] === '\\') {
+                            currAtom += m[pos1[y]][pos1[x]];
+                            pos1[x]++;
+                            currAtom += m[pos1[y]][pos1[x]];
+                            pos1[x]++;
+                        }
+                    }
+                    
+                    if (m[pos1[y]][pos1[x]] === bound) {
+                        currAtom += m[pos1[y]][pos1[x]];
+                        if (bound === '"') {
+                            try {
+                                val = JSON.parse(currAtom).replaceAll ("\\", "&bsol;");
+                            }
+                            catch {
+                                return {err: err[4], pos: {y: pos1[y], x: pos1[x]}};
+                            }
+                        }
+                        else {
+                            val = currAtom;
+                        }
+                        
+                        return {rect: [pos0[y], pos0[x], pos1[y], pos1[x] + 1], val: val};
+                    }
+                    else {
+                        return {err: err[5], pos: {y: pos1[y], x: pos1[x]}};
+                    }
                 }
-
-                allStr += text.substring (end2, i) + "\n";
-            }
-            while (text.charAt (i) === '\n');
-            
-            if (bound === "/") {
-                allStr = bound.repeat (scnt) + '\n' + allStr + bound.repeat (scnt);
-            }
-            
-            if (terminated) {
-                return {pos: end2 + scnt, val: allStr.replaceAll ("\\", "&bsol;")};
-            }
-            else {
-                if (bound === '"') {
-                    return {err: "Unterminated string error", pos: lastToken};
-                }
-                else if (bound === '/') {
-                    return {err: "Unterminated comment error", pos: lastToken};
+                else {
+                    pos1[y]++;
+                    br1: while (pos1[y] < m.length) {
+                        while (m[pos1[y]][pos1[x]] !== " " && m[pos1[y]][pos1[x]] !== bound) {
+                            pos1[y]++;
+                            if (pos1[y] >= m.length) {
+                                break br1;
+                            }
+                        }
+                        
+                        while (m[pos1[y]][pos1[x]] === " ") {
+                            pos1[x]++;
+                        }
+                        
+                        if (m[pos1[y]][pos1[x] - 1] === bound) {
+                            return {err: err[7], pos: {y: pos1[y], x: pos1[x]}};
+                        }
+                        
+                        i = pos1[x];
+                        numBounds2 = 0;
+                        while (m[pos1[y]][i] === bound) {
+                            i++;
+                            numBounds2++;
+                        }
+                        
+                        if (numBounds1 === numBounds2) {
+                            pos1[x] += numBounds2;
+                            break;
+                        }
+                        
+                        pos1[y]++;
+                        pos1[x] = pos[x];
+                    }
+                    
+                    if (pos1[y] < m.length) {
+                        for (i = pos0[x] + numBounds1; i < pos1[x]; i++) {
+                            if (m[pos0[y]][i] !== " " && m[pos0[y]][i] !== undefined) {
+                                return {err: err[8], pos: {y: pos0[y], x: i}};
+                            }
+                        }
+                        return {rect: [pos0[y], pos0[x], pos1[y], pos1[x]], val: extractBlock (m, [pos0[y] + 1, pos0[x], pos1[y] - 1, pos1[x]])};
+                    }
+                    else {
+                        return {err: err[6], pos: {y: pos[y], x: pos[x]}};
+                    }
                 }
             }
         }
         
-        var parseAtom = function (text, pos) {
-            var i, lastToken, ret, ws, pref;
-            ws = skipWhitespace (text, pos);
-            if (ws.err) {
-                return ws;
-            }
-            
-            i = ws.pos;
-            lastToken = i;
-            pref = "";
-            while(text.charAt (i) === '\\') {
-                i++;
-                pref += "\\";
-                ret = false;
-            }
-
-            if(ret === false && text.charAt (i) === '/') {
-                return {err: "Expected atom error", pos: i};
-            }
-
-            if ('"/'.indexOf (text.charAt (i)) > -1) {
-                ret = blockChoice (text, i)
-                if (ret.err) {
-                    return ret;
+        var extractBlock = function (m, rect) {
+            var x = 1, y = 0, currChar, val = "";
+            var pos = [rect[0], rect[1]];
+            while (pos[y] <= rect[2]) {
+                currChar = m[pos[y]][pos[x]]
+                if (currChar !== undefined) {
+                    val += currChar;
                 }
                 
-                i = ret.pos;
-                ret = pref + ret.val;
-            }
-            else {
-                while ('"\\/() \t\n\r'.indexOf (text.charAt (i)) === -1 && text.substr(i, 2) !== "//" && text.substr(i, 2) !== "/*" && i < text.length) {
-                    i++;
-                }
+                pos[x]++;
                 
-                if (i > lastToken + pref.length) {
-                    ret = text.substring (lastToken, i);
+                if (pos[x] === rect[3] || m[pos[y]][pos[x]] === "undefined") {
+                    val += "\n";
+                    pos[x] = rect[1];
+                    pos[y]++;
                 }
             }
             
-            if (ret === false) {
-                return {err: "Expected atom error", pos: i};
-            }
-
-            ws = skipWhitespace (text, i);
-            if (ws.err) {
-                return ws;
-            }
-            
-            i = ws.pos;
-
-            return {pos: i, val: ret};
-        };
-        
-        var parseList = function (text, pos, normalize, path, p) {
-            var i, lastToken, listType, arr, ws;
-            arr = [];
-            ws = skipWhitespace (text, pos);
-            if (ws.err) {
-                return ws;
-            }
-            
-            i = ws.pos;
-            if (i === text.length) {
-                return {err: "Unexpected end of file", pos: i};
-            }
-            else if ('('.indexOf (text.charAt (i)) > -1) {
-                listType = '('.indexOf (text.charAt (i));
-                //arr.push (text.charAt (i));
-                i++;
-            }
-            else {
-                return {pos: i, err: "Expected parenthesis error: '('"};
-            }
-            
-            do {
-                lastToken = i;
-                if (!path || (path && path[p] !== arr.length)) {
-                    var ret1 = parseList (text, i, normalize);
-                }
-                else {
-                    var ret1 = parseList (text, i, normalize, path, p + 1);
-                }
-                
-                if (ret1.err && ret1.err === "Expected parenthesis error: '('") {
-                    var ret2 = parseAtom (text, i);
-                    if (ret2.err) {
-                        return ret2;
-                    }
-                    
-                    if (ret2.val || ret2.val === "") {
-                        arr.push (ret2.val);
-                    }
-                    
-                    i = ret2.pos;
-                }
-                else if (ret1.err){
-                    return ret1;
-                }
-                else {
-                    arr.push (ret1.val);
-                    i = ret1.pos;
-                }
-                
-                if (path && p === path.length - 1 && path[p] === arr.length - 1) {
-                    return {err: "Syntax error", pos: skipWhitespace (text, lastToken).pos};
-                }
-            }
-            while (i > lastToken);
-            
-            if (path && p === path.length - 1 && path[p] > arr.length - 1) {
-                return {err: "Too few list elements", pos: skipWhitespace (text, pos).pos};
-            }
-
-            if (')'.indexOf (text.charAt (i)) === listType) {
-                //arr.push (')'.charAt (listType));
-                ws = skipWhitespace (text, i + 1);
-                if (ws.err) {
-                    return ws;
-                }
-                
-                i = ws.pos;
-
-                return {pos: i, val: arr};
-            }
-            else if (text.charAt(i) === '\n'){
-                return {err: "Unterminated string", pos: lastToken};
-            }
-            else {
-                return {err: "Unterminated parenthesis error, expected '" + ')'.charAt (listType) + "'", pos: i};
-            }
-        };
+            return val;
+        }
         
         var getErr = function (text, path) {
             if (path.length === 0) {
@@ -442,7 +445,7 @@ var Sexpression = (
             }
         }
         
-        var getMmmLevel = function (arr, vars) {
+        var getMaxLevel = function (arr, vars) {
             if (!Array.isArray (arr)) {
                 return getLevel (arr, vars);
             }
@@ -456,7 +459,7 @@ var Sexpression = (
             return nl;
         }
         
-        function mmm (a1, a2) {
+        function max (a1, a2) {
             return a1 > a2 ? a1 : a2;
         }
         
@@ -520,42 +523,38 @@ var Sexpression = (
             }
         }
 
-        // start of Node.js support
-        
-        function escapeRegExp(string) {
-          return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-        }
-        
-        function replaceAll(str, match, replacement){
-           return str.replace(new RegExp(escapeRegExp(match), 'g'), ()=>replacement);
-        }
-        
-        if(typeof String.prototype.replaceAll === "undefined") {
-            String.prototype.replaceAll = function (match, replace) {return replaceAll (this.valueOf (), match, replace);};
-        }
-        
-        // end of Node.js support
-        
         return {
             parse: parse,
-            getErr: getErr,
+            getNodePos: getErr,
             normalizeSexpr: normalizeSexpr,
             denormalizeSexpr: denormalizeSexpr,
             denormalizeIndexes: denormalizeIndexes,
             levelOut: levelOut,
             getLevel: getLevel,
-            getMmmLevel: getMmmLevel,
+            getMaxLevel: getMaxLevel,
             stringify: stringify
         }
     }) ()
 );
 
-// start of Node.js support
+// begin of Node.js support
 
 var isNode = new Function ("try {return this===global;}catch(e){return false;}");
 
 if (isNode ()) {
     module.exports = Sexpression;
+    
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+    }
+
+    function replaceAll(str, match, replacement){
+       return str.replace(new RegExp(escapeRegExp(match), 'g'), ()=>replacement);
+    }
+
+    if(typeof String.prototype.replaceAll === "undefined") {
+        String.prototype.replaceAll = function (match, replace) {return replaceAll (this.valueOf (), match, replace);};
+    }
 }
 
 // end of Node.js support

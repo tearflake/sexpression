@@ -146,7 +146,7 @@
              <td class="exRound" id="top" valign="middle" height="28" width="100%" style="color:rgb(48,48,48); background-color:rgb(208,208,208);">
                 <font style="font-size:14px">
                 <b>
-                  s-expression input: &nbsp;&nbsp;
+                  sexpression input: &nbsp;&nbsp;
                 </b>
                 </font>
              </td>
@@ -298,30 +298,33 @@
         input1.setValue (
 `
 ///
-this is a
-multi-line
-comment
-///
+sexpression usage examples
+                       ///
 
 (
-    single-atom
-    
-    (
-        /this is a comment/
-        this is a nested list
-        (
-            one more list /also a comment/
-        )
-    )
-    
-    "unicode string \\u2713"
-    
-    (more atoms)
-    
-    """
-    indent sensitive
-    multi-line string
-    """
+  atom
+
+  (
+    /this is a comment/                                    ///
+    this is a list                                         this is a   
+    (                                                      multi-line
+      /one more comment/ one more list /also a comment/    comment
+    )                                                             ///   
+  )
+  
+  "this is an unicode string \\u2713"
+  
+  """      
+  this is a
+  multi-line
+  string
+         """
+  
+  (atom1 """    atom2)
+         middle
+         block
+         string
+            """
 )
 `
 );
@@ -348,8 +351,7 @@ comment
             var tm = Date.now ();
             var output = Sexpression.parse (input1.getValue ());
             if (output.err) {
-                var c = getCoords (input1.getValue (), output.pos)
-                output1.value = "parsing:\n" + output.err + " at " + "(" + c.row + ", " + c.column + ")";
+                output1.value = "parsing:\n" + output.err + " at " + "(" + (output.pos.y + 1) + ", " + (output.pos.x + 1) + ")";
                 document.getElementById("tm").innerHTML = "";
             } else {
                 var sparsed = (Date.now () - tm)
