@@ -1,4 +1,4 @@
-# sexpression v1.0.3
+# sexpression v1.0.4
 
 S-expression is a formal language for representing data and code. *Sexpression* project is an implementation of s-expression language parser.
 
@@ -24,7 +24,7 @@ comment
         )
     )
     
-    "this is a unicode string \\u2717 \\u2714"
+    "this is a unicode string \u2717 \u2714"
     
     (more atoms)
     
