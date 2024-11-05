@@ -14,7 +14,7 @@ var Sexpression = (
             denormalizeIndexes: obj.denormalizeIndexes,
             levelOut: obj.levelOut,
             getLevel: obj.getLevel,
-            getMaxLevel: obj.getMmmLevel,
+            getMaxLevel: obj.getMaxLevel,
             stringify: obj.stringify
         };
     }
@@ -22,7 +22,7 @@ var Sexpression = (
     (function () {
         var err = [];
         err[0] = "'\\t' character not allowed error";
-        err[1] = "'\\v' character not allowed error";
+        err[1] = "'\\u000B' character not allowed error";
         err[2] = "Expected end of S-expression error";
         err[3] = "Unexpected end of S-expression error";
         err[4] = "Unicode string syntax error";
@@ -33,54 +33,41 @@ var Sexpression = (
         
         var parse = function (text) {
             var m = createMatrix (text);
-            var p = parseMatrix (m.l, m.m);
+            var p = parseMatrix (m);
             return p;
         }
         
         var createMatrix = function (text) {
-            var l, m, i;
+            var m, i;
             
-            l = []
             text = text.replaceAll ("\r\n", "\n");
             m = text.split ("\n");
             for (i = 0; i < m.length; i++) {
-                l[i] = m[i].length;
                 m[i] = m[i].split ("");
             }
             
-            return {l: l, m: m};
+            return m;
         }
         
-        var parseMatrix = function (l, m) {
-            var b, x, y, pos, i, tmpPos, stack, currChar, currAtom, val;
+        var parseMatrix = function (m) {
+            var x, y, pos, i, tmpPos, stack, currChar, currAtom, val;
             
-            b = [];
             y = 0;
             x = 1;
             pos = [0, 0];
             //pos = skipWhitespace (m, pos[y], pos[x]);
             stack = [];
             while (pos[y] < m.length) {
-                while (b[0] && b[0][2] < pos[y]) {
-                    b.shift ();
-                }
-                
-                for (i = 0; i < b.length; i++) {
-                    if (pos[y] >= b[i][0] && pos[x] >= b[i][1] && pos[y] <= b[i][2] && pos[x] <= b[i][3]) {
-                        pos[x] = Math.max (b[i][3], pos[x]);
-                    }
-                }
-                
                 currChar = m[pos[y]][pos[x]];
                 if (currChar === "\t") {
                     return {err: err[0], pos: {y: pos[y], x: pos[x]}};
                 }
-                else if (currChar === "\v") {
+                else if (currChar === "\u000B") {
                     return {err: err[1], pos: {y: pos[y], x: pos[x]}};
                 }
                 
                 if (currChar === '/' || currChar === ' ' || currChar === undefined) {
-                    tmpPos = skipWhitespace (l, m, b, pos[y], pos[x]);
+                    tmpPos = skipWhitespace (m, pos[y], pos[x]);
                     if (tmpPos.err) {
                         return tmpPos;
                     }
@@ -113,14 +100,13 @@ var Sexpression = (
                     }
                 }
                 else if ('"'.indexOf (currChar) > -1) {
-                    currAtom = getBlock (l, m, pos, currChar);
+                    currAtom = getBlock (m, pos, currChar);
                     if (currAtom.err) {
                         return currAtom;
                     }
                     else {
-                        b.push (currAtom.rect);
-                        pos[y] = currAtom.rect[0];
-                        pos[x] = currAtom.rect[3];
+                        pos[y] = currAtom.pos[y];
+                        pos[x] = currAtom.pos[x];
                         if (stack.length > 0) {
                             stack[stack.length - 1].push (currAtom.val);
                             if (m[pos[y]][pos[x]] === undefined) {
@@ -136,15 +122,10 @@ var Sexpression = (
                 }
                 else if (' ()"/'.indexOf (currChar) === -1 && currChar !== undefined) {
                     currAtom = "";
-                    br1: while (' ()'.indexOf (currChar) === -1 && currChar !== undefined) {
+                    while (' ()"/'.indexOf (currChar) === -1 && currChar !== undefined) {
                         currAtom += currChar;
                         pos[x]++;
                         currChar = m[pos[y]][pos[x]];
-                        for (i = 0; i < b.length; i++) {
-                            if (pos[y] >= b[i][0] && pos[x] >= b[i][1] && pos[y] <= b[i][2] && pos[x] <= b[i][3]) {
-                                break br1;
-                            }
-                        }
                     }
 
                     if (stack.length > 0) {
@@ -157,7 +138,7 @@ var Sexpression = (
                 }
             }
             
-            pos = skipWhitespace (l, m, b, pos[y], pos[x]);
+            pos = skipWhitespace (m, pos[y], pos[x]);
             if (pos.err) {
                 return pos;
             }
@@ -170,42 +151,28 @@ var Sexpression = (
             }
         }
         
-        var skipWhitespace = function (l, m, b, row, col) {
+        var skipWhitespace = function (m, row, col) {
             var pos, x, y, i, j, k, currAtom;
             
             y = 0;
             x = 1;
             pos = [row, col];
             while (pos[y] < m.length) {
-                for (k = 0; k < b.length; k++) {
-                    if (pos[y] >= b[k][0] && pos[x] >= b[k][1] && pos[y] <= b[k][2] && pos[x] <= b[k][3]) {
-                        pos[x] = Math.max (b[k][3], pos[x]);
-                    }
-                }
-
                 while (m[pos[y]][pos[x]] === " ") {
                     pos[x]++;
-                    
-                    for (k = 0; k < b.length; k++) {
-                        if (pos[y] >= b[k][0] && pos[x] >= b[k][1] && pos[y] <= b[k][2] && pos[x] <= b[k][3]) {
-                            pos[x] = Math.max (b[k][3], pos[x]);
-                        }
-                    }
-
                     if (m[pos[y]][pos[x]] === undefined) {
                         break;
                     }
                 }
                 
                 if (m[pos[y]][pos[x]] === '/') {
-                    currAtom = getBlock (l, m, pos, '/');
+                    currAtom = getBlock (m, pos, '/');
                     if (currAtom.err) {
                         return currAtom;
                     }
                     else {
-                        b.push (currAtom.rect);
-                        pos[y] = currAtom.rect[0];
-                        pos[x] = currAtom.rect[3];
+                        pos[y] = currAtom.pos[y];
+                        pos[x] = currAtom.pos[x];
                     }
                 }
                 else if (m[pos[y]][pos[x]] !== undefined) {
@@ -220,8 +187,8 @@ var Sexpression = (
             return [pos[y], pos[x]];
         }
         
-        var getBlock = function (l, m, pos, bound) {
-            var i, numBounds1 = 0, numBounds2, x = 1, y = 0, currAtom = "", val;
+        var getBlock = function (m, pos, bound) {
+            var i, j, ws, numBounds1 = 0, numBounds2, x = 1, y = 0, currAtom = "", val;
             var pos0 = [pos[y], pos[x]];
             var pos1 = [pos[y], pos[x]];
             if ('"/'.indexOf (bound) > -1) {
@@ -235,7 +202,7 @@ var Sexpression = (
                 if (numBounds1 === 1 || numBounds1 % 2 === 0) {
                     currAtom = bound;
                     pos1[x]++;
-                    while (m[pos1[y]][pos1[x]] !== undefined && m[pos1[y]][pos1[x]] !== bound && pos1[x] < l[pos1[y]]) {
+                    while (m[pos1[y]][pos1[x]] !== undefined && m[pos1[y]][pos1[x]] !== bound) {
                         currAtom += m[pos1[y]][pos1[x]];
                         pos1[x]++;
                         if (m[pos1[y]][pos1[x]] === '\\') {
@@ -260,53 +227,45 @@ var Sexpression = (
                             val = currAtom;
                         }
                         
-                        return {rect: [pos0[y], pos0[x], pos1[y], pos1[x] + 1], val: val};
+                        return {pos: [pos1[y], pos1[x] + 1], val: val};
                     }
                     else {
                         return {err: err[5], pos: {y: pos1[y], x: pos1[x]}};
                     }
                 }
                 else {
+                    ws = 0;
+                    while (m[pos1[y]][ws] === " ") {
+                        ws++;
+                    }
+                    
                     pos1[y]++;
-                    br1: while (pos1[y] < m.length) {
-                        while (m[pos1[y]][pos1[x]] !== " " && m[pos1[y]][pos1[x]] !== bound) {
-                            pos1[y]++;
-                            if (pos1[y] >= m.length) {
-                                break br1;
+                    pos1[x] = ws;
+                    while (pos1[y] < m.length) {
+                        for (i = 0; i < ws; i++) {
+                            if (m[pos1[y]][i] !== " " && m[pos1[y]][i] !== undefined) {
+                                return {err: err[8], pos: {y: pos1[y], x: i}};
                             }
                         }
                         
-                        while (m[pos1[y]][pos1[x]] === " ") {
-                            pos1[x]++;
-                        }
-                        
-                        if (m[pos1[y]][pos1[x] - 1] === bound) {
-                            return {err: err[7], pos: {y: pos1[y], x: pos1[x]}};
-                        }
-                        
-                        i = pos1[x];
-                        numBounds2 = 0;
-                        while (m[pos1[y]][i] === bound) {
-                            i++;
-                            numBounds2++;
-                        }
-                        
-                        if (numBounds1 === numBounds2) {
-                            pos1[x] += numBounds2;
-                            break;
+                        if (m[pos1[y]][ws] === bound) {
+                            i = ws;
+                            numBounds2 = 0;
+                            while (m[pos1[y]][i] === bound) {
+                                i++;
+                                numBounds2++;
+                            }
+                            
+                            if (numBounds1 === numBounds2) {
+                                break;
+                            }
                         }
                         
                         pos1[y]++;
-                        pos1[x] = pos[x];
                     }
                     
                     if (pos1[y] < m.length) {
-                        for (i = pos0[x] + numBounds1; i < pos1[x]; i++) {
-                            if (m[pos0[y]][i] !== " " && m[pos0[y]][i] !== undefined) {
-                                return {err: err[8], pos: {y: pos0[y], x: i}};
-                            }
-                        }
-                        return {rect: [pos0[y], pos0[x], pos1[y], pos1[x]], val: extractBlock (m, [pos0[y] + 1, pos0[x], pos1[y] - 1, pos1[x]])};
+                        return {pos: [pos1[y], pos1[x] + numBounds2], val: extractBlock (m, {begin: [pos0[y], ws], end: [pos1[y], ws + numBounds2]})};
                     }
                     else {
                         return {err: err[6], pos: {y: pos[y], x: pos[x]}};
@@ -315,22 +274,15 @@ var Sexpression = (
             }
         }
         
-        var extractBlock = function (m, rect) {
-            var x = 1, y = 0, currChar, val = "";
-            var pos = [rect[0], rect[1]];
-            while (pos[y] <= rect[2]) {
-                currChar = m[pos[y]][pos[x]]
-                if (currChar !== undefined) {
-                    val += currChar;
+        var extractBlock = function (m, bounds) {
+            var i, j, x = 1, y = 0, currChar, val = "";
+            var pos = bounds.begin;
+            for (i = pos[y] + 1; i < bounds.end[y]; i++) {
+                for (j = pos[x]; m[i][j] !== undefined; j++) {
+                    val += m[i][j];
                 }
                 
-                pos[x]++;
-                
-                if (pos[x] === rect[3] || m[pos[y]][pos[x]] === "undefined") {
-                    val += "\n";
-                    pos[x] = rect[1];
-                    pos[y]++;
-                }
+                val += "\n";
             }
             
             return val;
@@ -453,14 +405,10 @@ var Sexpression = (
             var cl = -Infinity;
             var nl = cl;
             for (var i = 0; i < arr.length; i++) {
-                var nl = mmm (nl, getMmmLevel (arr[i], vars));
+                var nl = Math.max (nl, getMaxLevel (arr[i], vars));
             }
             
             return nl;
-        }
-        
-        function max (a1, a2) {
-            return a1 > a2 ? a1 : a2;
         }
         
         function stringify (node, indent) {

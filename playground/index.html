@@ -146,7 +146,7 @@
              <td class="exRound" id="top" valign="middle" height="28" width="100%" style="color:rgb(48,48,48); background-color:rgb(208,208,208);">
                 <font style="font-size:14px">
                 <b>
-                  sexpression input: &nbsp;&nbsp;
+                  s-expression input: &nbsp;&nbsp;
                 </b>
                 </font>
              </td>
@@ -298,33 +298,31 @@
         input1.setValue (
 `
 ///
-sexpression usage examples
-                       ///
+this is a
+multi-line
+comment
+///
 
 (
-  atom
-
-  (
-    /this is a comment/                                    ///
-    this is a list                                         this is a   
-    (                                                      multi-line
-      /one more comment/ one more list /also a comment/    comment
-    )                                                             ///   
-  )
-  
-  "this is an unicode string \\u2713"
-  
-  """      
-  this is a
-  multi-line
-  string
-         """
-  
-  (atom1 """    atom2)
-         middle
-         block
-         string
-            """
+    atom
+    
+    (
+        /this is a comment/
+        this is a list
+        (
+            /one more comment/ one more list /also a comment/
+        )
+    )
+    
+    "this is a unicode string \\u2717 \\u2714"
+    
+    (more atoms)
+    
+    """
+    this is a
+    multi-line
+    string
+    """
 )
 `
 );

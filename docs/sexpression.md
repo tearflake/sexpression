@@ -53,7 +53,7 @@ The above grammar defines the syntax of *Sexpression*. To interpret these gramma
 
 ## 4. strings and comments
 
-Although a great part of S-expressions power lies in its simplicity, let's introduce a few extensions in a hope of making expressed code more readable, namely: strings and comments.
+Although a great part of S-expressions power lies in its simplicity, let's introduce a couple of extensions in a hope of making expressed code more readable, namely: strings and comments.
 
 #### strings
 
@@ -64,22 +64,10 @@ Strings in *Sexpression* may be single-line or multi-line. Single-line strings a
 this is a
 multi-line
 string
-       """
+"""
 ```
 
-Enclosing between a pair of `"""` symbols, multi-line strings are bound in a rectangle between the start of the first `"""` symbol, and the end of the second `"""` symbol. Remember to be careful when modifying contents of multi-line strings to make sure that the end of the second `"""` symbol is always placed horizontally behind the longest line in the string.
-
-Notice that it is also possible to write expressions like:
-
-```
-(fst-atom """   trd-atom)
-          00001
-          00002
-          00003
-            """
-```
-
-where the expression stands for three atoms in a list.
+Multi-line strings are indent sensitive.
 
 #### comments
 
@@ -90,24 +78,12 @@ Comment expressions are ignored by the system, and they serve as notes to help p
 this is a
 multi-line
 comment
-       ///
-```
-
-Just like strings, enclosing between a pair of `///` symbols, multi-line comments are bound in a rectangle between the start of the first `///` symbol, and the end of the second `///` symbol. Notice that it is also possible to write expressions like:
-
-```
 ///
-00001 (
-00002   fst-atom
-00003   snd-atom
-00004   trd-atom
-00005 )
-  ///
 ```
 
-where the expression stands for three atoms in a list.
+Multi-line comments are also indent sensitive.
 
 ## 5. conclusion
 
-We defined *Sexpression* code format and introduced somewhat peculiar way to treat strings and comments. We tried to be consistent with these add-ons to keep acceptable ratio between simplicity and usability. The resulting code format is a bit more complicated than it is in usual Lispy languages, but we hope that the introduced complexity is justified by the data readability expressed this way.
+We defined *Sexpression* code format and introduced a consistent way to treat strings and comments.
 
