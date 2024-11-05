@@ -234,6 +234,18 @@ var Sexpression = (
                     }
                 }
                 else {
+                    i = pos1[x] + numBounds1;
+                    while (true) {
+                        if (m[pos1[y]][i] === undefined) {
+                            break;
+                        }
+                        else if (m[pos1[y]][i] !== " ") {
+                            return {err: err[8], pos: {y: pos[y], x: i}};
+                        }
+
+                        i++;
+                    }
+                    
                     ws = 0;
                     while (m[pos1[y]][ws] === " ") {
                         ws++;
