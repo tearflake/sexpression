@@ -81,5 +81,5 @@ Multi-line comments are also indent sensitive, just like strings.
 
 ## 5. conclusion
 
-We defined *Sexpression* code format and introduced a consistent way to treat strings and comments. Considering comments are analog to strings, one may find comments a bit restrictive regarding their position and context, but we find the presented solution compact and acceptable.
+We defined *Sexpression* code format and introduced a consistent way to treat strings and comments. Considering comments are analogous to strings, one may find comments a bit restrictive regarding their position and context, but we find the presented solution compact and acceptable.
 
