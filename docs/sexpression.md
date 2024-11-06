@@ -27,11 +27,7 @@ The general form of an S-expression is either:
 - An atom (e.g., `atom`), or
 - A list of S-expressions (e.g., `(expr1 expr2 expr3)`).
 
-Lists can be nested, allowing for the representation of complex hierarchical structures. For example:
-
-`(eq (mul x x) (pow x 2))`
-
-This S-expression depicts equality between multiplication and square.
+Lists can be nested, allowing for the representation of complex hierarchical structures. For example: `(eq (mul x x) (pow x 2))` expression depicts equality between multiplication and square.
 
 ## 3. formal definition
 
@@ -57,7 +53,7 @@ Although a great part of S-expressions power lies in its simplicity, let's intro
 
 #### strings
 
-Strings in *Sexpression* may be single-line or multi-line. Single-line strings are atoms enclosed in `"..."` pairs, like in expression `"this is a single-line string"`, and represent Unicode format strings. Multi-line strings are enclosed between an odd number greater than 1 of `"` symbols in the following manner:
+Strings in *Sexpression* may be single-line or multi-line. Single-line strings are atoms enclosed within `"..."`, like in expression `"this is a single-line string"`, and represent Unicode format strings. Multi-line strings are enclosed between an odd number greater than 1 of `"` symbols in the following manner:
 
 ```
 """
@@ -81,9 +77,9 @@ comment
 ///
 ```
 
-Multi-line comments are also indent sensitive.
+Multi-line comments are also indent sensitive, just like strings.
 
 ## 5. conclusion
 
-We defined *Sexpression* code format and introduced a consistent way to treat strings and comments.
+We defined *Sexpression* code format and introduced a consistent way to treat strings and comments. Considering comments are analog to strings, one may find comments a bit restrictive regarding their position and context, but we find the presented solution compact and acceptable.
 
