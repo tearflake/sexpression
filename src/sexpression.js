@@ -12,9 +12,6 @@ var Sexpression = (
             normalizeSexpr: obj.normalizeSexpr,
             denormalizeSexpr: obj.denormalizeSexpr,
             denormalizeIndexes: obj.denormalizeIndexes,
-            levelOut: obj.levelOut,
-            getLevel: obj.getLevel,
-            getMaxLevel: obj.getMaxLevel,
             stringify: obj.stringify
         };
     }
@@ -296,7 +293,8 @@ var Sexpression = (
                     while (pos1[y] < m.length) {
                         for (i = 0; i < ws; i++) {
                             if (m[pos1[y]][i] !== " " && m[pos1[y]][i] !== undefined) {
-                                return {err: err[8], pos: {y: pos1[y], x: i}};
+                                //return {err: err[8], pos: {y: pos1[y], x: i}};
+                                return {err: err[6], pos: {y: pos0[y], x: pos0[x]}};
                             }
                         }
                         
@@ -367,7 +365,6 @@ var Sexpression = (
         
         var normalizeSexpr = function (expr) {
             if (Array.isArray (expr)) {
-                //var lastExpr = ['(', ')'];
                 var lastExpr = [];
                 for (var i = expr.length - 1; i >= 0; i--) {
                     lastExpr = [normalizeSexpr (expr[i]), lastExpr];
@@ -414,70 +411,6 @@ var Sexpression = (
             
             return dnm;
         };
-
-        var levelOut = function (arr, vars, level) {
-            if (vars === undefined) vars  = [];
-            if (!Array.isArray (arr)) {
-                if (arr !== "ATOMIC" && arr !== "COMPOUND" && arr !== "ANY" && arr !== undefined && /*arr !== "(" && arr !== ")" &&*/ vars.indexOf (arr) === -1){
-                    for (var curLevelL = 0; curLevelL < arr.length && arr.charAt(curLevelL) === "\\"; curLevelL++);
-                    for (var curLevelR = 0; arr.length - curLevelR - 1 > 0 && arr.charAt(arr.length - curLevelR - 1) === "\\"; curLevelR++);
-                    
-                    var lft = curLevelL;
-                    var rgt = 0;
-                    for (var i = 0; i < level; i++) {
-                        if (lft > 0) {
-                            lft--;
-                        }
-                        else {
-                            rgt++;
-                        }
-                    }
-
-                    var strMid = arr.substring (curLevelL, arr.length);
-                    var strLft = lft > 0 ? "\\".repeat (lft): "";
-                    var strRgt = rgt > 0 ? "\\".repeat (rgt): "";
-                    
-                    return strLft + strMid + strRgt;
-                }
-                else {
-                    return arr;
-                }
-            }
-            
-            var arr1 = [];
-            for (var i = 0; i < arr.length; i++) {
-                arr1[i] = levelOut (arr[i], vars, level);
-            }
-            
-            return arr1;
-        }
-        
-        var getLevel = function (str, vars) {
-            if (vars === undefined) vars  = [];
-            if (str !== "ATOMIC" && str !== "COMPOUND" && str !== "ANY" && str !== undefined && vars.indexOf (str) === -1){
-                for (var curLevelL = 0; curLevelL < str.length && str.charAt(curLevelL) === "\\"; curLevelL++);
-                for (var curLevelR = 0; str.length - curLevelR - 1 > 0 && str.charAt(str.length - curLevelR - 1) === "\\"; curLevelR++);
-                
-                return curLevelL > 0 ? -curLevelL : curLevelR;
-            }
-            else {
-                return -Infinity ;
-            }
-        }
-        
-        var getMaxLevel = function (arr, vars) {
-            if (!Array.isArray (arr)) {
-                return getLevel (arr, vars);
-            }
-            
-            var cl = -Infinity;
-            var nl = cl;
-            for (var i = 0; i < arr.length; i++) {
-                var nl = Math.max (nl, getMaxLevel (arr[i], vars));
-            }
-            
-            return nl;
-        }
         
         function stringify (node, indent) {
             if (indent === undefined) {
@@ -545,9 +478,6 @@ var Sexpression = (
             normalizeSexpr: normalizeSexpr,
             denormalizeSexpr: denormalizeSexpr,
             denormalizeIndexes: denormalizeIndexes,
-            levelOut: levelOut,
-            getLevel: getLevel,
-            getMaxLevel: getMaxLevel,
             stringify: stringify
         }
     }) ()
