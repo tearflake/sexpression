@@ -1,4 +1,4 @@
-# sexpression v1.0.7
+# sexpression v1.0.8
 
 S-expression is a formal language for representing data and code. *Sexpression* project is an implementation of S-expression language parser.
 
@@ -54,7 +54,7 @@ const Sexpression = require('@tearflake/sexpression');
 To access the API from browser, clone this repository from GitHub: `git clone https://github.com/tearflake/sexpression`, and include the following line in your code:
 
 ```
-<script src="./src/sexpression.js"></script>
+<script src="path-to-sexpression-package/src/sexpression.js"></script>
 ```
 
 Below, in both cases, use the package as:
