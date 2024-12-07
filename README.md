@@ -61,5 +61,7 @@ Below, in both cases, use the package as:
 
 ```
 var arrOutput = Sexpression.parse('(a b c)');
-console.log(JSON.stringify(arrOutput, null, 4));
+if (!arrOutput.err) {
+    console.log(JSON.stringify(arrOutput, null, 4));
+}
 ```
