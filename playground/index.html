@@ -355,6 +355,7 @@ comment
                 var sparsed = (Date.now () - tm)
                 document.getElementById("tm").innerHTML = "(s-expression parsed in " + sparsed + "ms)";
                 //output = Sexpression.denormalizeSexpr (Sexpression.normalizeSexpr (output));
+                //output1.value = Sexpression.stringify (output);
                 output1.value = JSON.stringify (output, undefined, 4);
             }
             output1.selectionStart = 0;
