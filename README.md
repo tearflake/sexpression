@@ -1,4 +1,4 @@
-# sexpression v1.0.9
+# sexpression v1.0.10
 
 S-expression is a formal language for representing data and code. *Sexpression* project is an implementation of S-expression language parser.
 

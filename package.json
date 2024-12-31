@@ -1,6 +1,6 @@
 {
   "name": "@tearflake/sexpression",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "S-expression parser",
   "main": "src/sexpression.js",
   "directories": {
@@ -22,5 +22,5 @@
   "bugs": {
     "url": "https://github.com/tearflake/sexpression/issues"
   },
-  "homepage": "https://tearflake.github.io"
+  "homepage": "https://github.com/tearflake/sexpression#readme"
 }
