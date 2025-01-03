@@ -1,6 +1,6 @@
 {
   "name": "@tearflake/sexpression",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "S-expression parser",
   "main": "src/sexpression.js",
   "directories": {
