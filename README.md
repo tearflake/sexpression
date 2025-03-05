@@ -54,7 +54,7 @@ const S-expression = require('@tearflake/s-expression');
 To access the API from browser, clone this repository from GitHub by: `git clone https://github.com/tearflake/s-expression`, and include the following line in your code:
 
 ```
-<script src="path-to-s-expression-package/src/s-expression.js"></script>
+<script src="path-to-s-expression-package/src/s-expr.js"></script>
 ```
 
 Below, in both cases, use the package as:
