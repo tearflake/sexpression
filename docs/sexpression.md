@@ -1,7 +1,7 @@
-# sexpression
+# s-expression
 
 > **[about document]**  
-> *Sexpression* specification document
+> *S-expression* specification document
 >
 > **[intended audience]**  
 > beginners in programming
@@ -18,7 +18,7 @@
 
 S-expressions (Symbolic Expressions) are a fundamental concept in computer science and programming language theory. S-expressions are a simple, yet powerful notation for representing nested list data structures and code in a parenthesized form. They are commonly associated with the Lisp family of programming languages, where they serve both as a way to represent code and data uniformly.
 
-*Sexpression* is a S-expression parsing library. Other than usual treatment of atoms and lists, it features peculiar decisions in syntax definition regarding strings and comments.
+*S-expression* is a S-expression parsing library. Other than usual treatment of atoms and lists, it features peculiar decisions in syntax definition regarding strings and comments.
 
 ## 2. informal definition
 
@@ -31,7 +31,7 @@ Lists can be nested, allowing for the representation of complex hierarchical str
 
 ## 3. formal definition
 
-In computer science, syntax of a language is a set of acceptable expressions defined by a grammar. We bring the syntax of *Sexpression* in a relaxed kind of Backus-Naur form syntax rules:
+In computer science, syntax of a language is a set of acceptable expressions defined by a grammar. We bring the syntax of *S-expression* in a relaxed kind of Backus-Naur form syntax rules:
 
 ```
          <start> := <whitespace>* <element> <whitespace>*
@@ -45,7 +45,7 @@ In computer science, syntax of a language is a set of acceptable expressions def
                   | <NEW-LINE>
 ```
 
-The above grammar defines the syntax of *Sexpression*. To interpret these grammar rules, we use special symbols: `... := ...` for expressing assignment, `<...>` for noting identifiers, `"..."` for terminals, `(...)` for grouping, `...+` for one or more occurrences, `...*` for zero or more occurrences, `...?` for optional appearance, and `... | ...` for alternation between expressions.
+The above grammar defines the syntax of *S-expression*. To interpret these grammar rules, we use special symbols: `... := ...` for expressing assignment, `<...>` for noting identifiers, `"..."` for terminals, `(...)` for grouping, `...+` for one or more occurrences, `...*` for zero or more occurrences, `...?` for optional appearance, and `... | ...` for alternation between expressions.
 
 ## 4. strings and comments
 
@@ -53,7 +53,7 @@ Although a great part of S-expressions power lies in its simplicity, let's intro
 
 #### strings
 
-Strings in *Sexpression* may be single-line or multi-line. Single-line strings are atoms enclosed within `"..."`, like in expression `"this is a single-line string"`, and represent Unicode format strings. Multi-line strings are enclosed between an odd number greater than 1 of `"` symbols in the following manner:
+Strings in *S-expression* may be single-line or multi-line. Single-line strings are atoms enclosed within `"..."`, like in expression `"this is a single-line string"`, and represent Unicode format strings. Multi-line strings are enclosed between an odd number greater than 1 of `"` symbols in the following manner:
 
 ```
 """
@@ -81,5 +81,5 @@ Multi-line comments are also indent sensitive, just like strings.
 
 ## 5. conclusion
 
-We defined *Sexpression* code format and introduced a consistent way to treat strings and comments. Considering comments are analogous to strings, one may find comments a bit restrictive regarding their position and context, but we find the presented solution compact and acceptable.
+We defined *S-expression* code format and introduced a consistent way to treat strings and comments. Considering comments are analogous to strings, one may find comments a bit restrictive regarding their position and context, but we find the presented solution compact and acceptable.
 
