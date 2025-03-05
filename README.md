@@ -39,7 +39,7 @@ comment
 ## resources
 
 - Test this package in the [online playground](https://tearflake.github.io/s-expression/playground/).
-- Read the [S-expression specification](https://tearflake.github.io/s-expression/docs/s-expression).
+- Read the [S-expression specification](https://tearflake.github.io/s-expression/docs/s-expr).
 
 ## javascript API access
 
