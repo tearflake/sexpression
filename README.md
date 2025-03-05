@@ -60,7 +60,7 @@ To access the API from browser, clone this repository from GitHub by: `git clone
 Below, in both cases, use the package as:
 
 ```
-var arrOutput = S-expression.parse('(a b c)');
+var arrOutput = Sexpression.parse('(a b c)');
 if (!arrOutput.err) {
     console.log(JSON.stringify(arrOutput, null, 4));
 }
