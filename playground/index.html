@@ -347,7 +347,7 @@ comment
         document.getElementById("tm").innerHTML = "(parsing s-expression...)";
         setTimeout (function (){
             var tm = Date.now ();
-            var output = Sexpression.parse (input1.getValue ());
+            var output = Sexpr.parse (input1.getValue ());
             if (output.err) {
                 output1.value = "parsing:\n" + output.err + " at " + "(" + (output.pos.y + 1) + ", " + (output.pos.x + 1) + ")";
                 document.getElementById("tm").innerHTML = "";
