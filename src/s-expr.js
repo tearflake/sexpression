@@ -4,7 +4,7 @@
 
 "use strict"
 
-var Sexpression = (
+var Sexpr = (
     function (obj) {
         return {
             parse: obj.parse,
